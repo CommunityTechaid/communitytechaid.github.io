@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>Ward Selection</title>
+</head>
+<body>
+<h1>Different options for selection wards in Lambeth & Southwark</h1>
+<h2>Option 1 - Linked Dropdowns</h2>
+	<select id="boroughSelect" onchange="changeOptions()">
+		<option value="lambeth">Lambeth</option>
+		<option value="southwark">Southwark</option>
+		<option value="other">Other</option>
+	</select>
+
+	<select id="wardSelection">
+		<optgroup id="options-lambeth">
+			<option value="lambeth-brixton-acre-lane">Brixton Acre Lane</option>
+			<option value="lambeth-brixton-north">Brixton North</option>
+			<option value="lambeth-brixton-rush-common">Brixton Rush Common</option>
+			<option value="lambeth-brixton-windrush">Brixton Windrush</option>
+			<option value="lambeth-clapham-common-&-abbeville">Clapham Common & Abbeville</option>
+			<option value="lambeth-clapham-east">Clapham East</option>
+			<option value="lambeth-clapham-park">Clapham Park</option>
+			<option value="lambeth-clapham-town">Clapham Town</option>
+			<option value="lambeth-gipsy-hill">Gipsy Hill</option>
+			<option value="lambeth-herne-hill-&-loughborough-junction">Herne Hill & Loughborough Junction</option>
+			<option value="lambeth-kennington">Kennington</option>
+			<option value="lambeth-knight's-hill">Knight's Hill</option>
+			<option value="lambeth-myatt's-fields">Myatt's Fields</option>
+			<option value="lambeth-oval">Oval</option>
+			<option value="lambeth-st-martin's">St Martin's</option>
+			<option value="lambeth-stockwell-east">Stockwell East</option>
+			<option value="lambeth-stockwell-west-&-larkhall">Stockwell West & Larkhall</option>
+			<option value="lambeth-streatham-common-&-vale">Streatham Common & Vale</option>
+			<option value="lambeth-streatham-hill-east">Streatham Hill East</option>
+			<option value="lambeth-streatham-hill-west-&-thornton">Streatham Hill West & Thornton</option>
+			<option value="lambeth-streatham-st-leonard's">Streatham St Leonard's</option>
+			<option value="lambeth-streatham-wells">Streatham Wells</option>
+			<option value="lambeth-vauxhall">Vauxhall</option>
+			<option value="lambeth-waterloo-&-south-bank">Waterloo & South Bank</option>
+			<option value="lambeth-west-dulwich">West Dulwich</option>
+		</optgroup>
+		<optgroup id="options-southwark">
+			<option value="southwark-borough-&-bankside">Borough & Bankside</option>
+			<option value="southwark-camberwell-green">Camberwell Green</option>
+			<option value="southwark-champion-hill">Champion Hill</option>
+			<option value="southwark-chaucer">Chaucer</option>
+			<option value="southwark-dulwich-hill">Dulwich Hill</option>
+			<option value="southwark-dulwich-village">Dulwich Village</option>
+			<option value="southwark-dulwich-wood">Dulwich Wood</option>
+			<option value="southwark-faraday">Faraday</option>
+			<option value="southwark-goose-green">Goose Green</option>
+			<option value="southwark-london-bridge-&-west-bermondsey">London Bridge & West Bermondsey</option>
+			<option value="southwark-newington">Newington</option>
+			<option value="southwark-north-bermondsey">North Bermondsey</option>
+			<option value="southwark-north-walworth">North Walworth</option>
+			<option value="southwark-nunhead-&-queens-road">Nunhead & Queens Road</option>
+			<option value="southwark-old-kent-road">Old Kent Road</option>
+			<option value="southwark-peckham">Peckham</option>
+			<option value="southwark-peckham-rye">Peckham Rye</option>
+			<option value="southwark-rotherhithe">Rotherhithe</option>
+			<option value="southwark-rye-lane">Rye Lane</option>
+			<option value="southwark-south-bermondsey">South Bermondsey</option>
+			<option value="southwark-st.-georges">St. Georges</option>
+			<option value="southwark-st.-giles">St. Giles</option>
+			<option value="southwark-surrey-docks">Surrey Docks</option>
+
+		</optgroup>
+		<optgroup id=options-other>
+		<option value="other-other">Other</option>
+		</optgroup>
+	</select>
+<script type="text/javascript">
+function changeOptions() {
+    let boroughSelect = document.getElementById("boroughSelect").value;
+    let id = `options-${boroughSelect}`;
+    let wardSelection = document.getElementById("wardSelection");
+    for (let optgroup of wardSelection.children) {
+        let match = optgroup.id === id;
+        optgroup[(match ? "remove" : "set") + "Attribute"]("hidden", "hidden");
+        if (match) {
+            wardSelection.value = optgroup.children[0].value;
+        }
+    }
+}
+
+changeOptions();
+</script>
+<hr>
+<h2>Option 2 - Custom Google Maps with overlays (coming soon...)</h2>
+</body>
+</html>
