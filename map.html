@@ -5,6 +5,7 @@
 <body>
 <h1>Different options for selection wards in Lambeth & Southwark</h1>
 <h2>Option 1 - Linked Dropdowns</h2>
+<p>Note: The ward lists are current, however the maps are old and should be replaced.</p>
 	<select id="boroughSelect" onchange="changeOptions()">
 		<option value="lambeth">Lambeth</option>
 		<option value="southwark">Southwark</option>
@@ -69,6 +70,8 @@
 		<option value="other-other">Other</option>
 		</optgroup>
 	</select>
+	<img src="Lambeth_London_UK_labelled_ward_map_2002.svg.png" class="map" width="400" height="755" id="map-lambeth" />
+	<img src="300px-Southwark_London_UK_labelled_ward_map_2002.svg.png" class="map" width="400" height="755" id="map-southwark" />
 <script type="text/javascript">
 function changeOptions() {
     let boroughSelect = document.getElementById("boroughSelect").value;
@@ -81,6 +84,17 @@ function changeOptions() {
             wardSelection.value = optgroup.children[0].value;
         }
     }
+	
+	toggleMaps(boroughSelect);
+}
+
+function toggleMaps(borough) {
+	document.querySelectorAll('.map').forEach(function(el) {
+	   el.style.display = 'none';
+	});
+	
+	let boroughMap = document.getElementById(`map-${borough}`);
+	boroughMap.style.display = 'block';
 }
 
 changeOptions();
