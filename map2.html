@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Title</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet-src.js"></script>
+<script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
+<script src="https://iissstaticwebcontent.blob.core.windows.net/production/shared/js/jquery.min.js"
+<!-- <script src="turf.js"></script>  -->
+
+    <style>
+        #map {
+            width: 1000px;
+            height:1000px;
+        }
+    </style>
+
+</head>
+<body>
+<div id="map"></div>
+<script>
+
+var myStyle4 = {
+    "color": "#FF008B",
+    "weight": 5,
+    "opacity": 0.65
+};
+
+
+
+
+
+    var mymap = L.map('map').setView([51.46, -0.01 ], 12);  
+
+    var osm=new L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{
+                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(mymap);
+
+var geojsonLayer;
+
+function WorldstyleNEW(feature) {
+// example of stylling based on properties of the feature -  LAD23NM === "Lambeth" - ie council = lambeth
+ if (feature.properties.LAD23NM === "Lambeth"){
+ mcolour = 'green'
+}
+ else
+{
+ mcolour = 'red'
+ }
+    console.log(feature)
+    return {
+        weight: 1,
+        opacity: 1,
+        color: mcolour,
+        fillOpacity: 0.1,
+        fillColor: "#00008B"
+    };
+}
+
+function ShowEquipment(e) {
+mymap.zoomIn();
+console.log("any code for a click here")
+}
+
+function pointMouseover(leafletEvent) {
+        var layer = leafletEvent.target;
+        layer.setStyle({
+            weight: 2,
+            fillColor: 'white'
+        });
+    }
+
+function pointMouseoff(leafletEvent) {
+        var layer = leafletEvent.target;
+        layer.setStyle({
+            weight: 1,
+           fillOpacity: 0.1,
+            fillColor: "#00008B"
+        });
+    }
+
+
+
+
+// add the code to display buffer on click
+function onEachFeature(feature, layer) {
+    layer.on({
+        click: ShowEquipment,
+mouseover : pointMouseover,
+mouseout : pointMouseoff
+        // click: CompareEquipment,
+    });
+}
+
+
+
+
+// load the master mena json file
+function geojsonUpdate() {
+   
+    $.getJSON("SouthLondonWards.geojson", function(data) {    //this file is being called for the countries
+
+        // L.geoJson function is used to parse geojson file and load on to map
+        geoJsonOverlay = L.geoJson(data, {
+            style: WorldstyleNEW,
+            onEachFeature: onEachFeature,
+        }).addTo(mymap);
+    });
+}
+
+geojsonUpdate();
+
+ </script>
+ </body>
+ </html>
