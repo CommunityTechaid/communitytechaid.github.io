@@ -2,115 +2,213 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Title</title>
+<title>CommunityTechAid - Ward Lookup</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet-src.js"></script>
 <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
-<script src="https://iissstaticwebcontent.blob.core.windows.net/production/shared/js/jquery.min.js"
-<!-- <script src="turf.js"></script>  -->
+<script src="https://iissstaticwebcontent.blob.core.windows.net/production/shared/js/jquery.min.js"></script>
+<!-- <script src="turf.js"></script> -->
+<script defer>
+    var geojsonLayer;
+    var mymap;
+    
+    function initializeMap() {
+        
+        var myStyle4 = {
+            "color": "#FF008B",
+            "weight": 5,
+            "opacity": 0.65
+        };
 
-    <style>
-        #map {
-            width: 1000px;
-            height:1000px;
+        //center map on Ruskin Park, which is a reasonable epicenter for Lambeth and Southwark
+        //51.4644464,-0.0965217,17z
+        mymap = L.map('map').setView([51.46, -0.097 ], 12);  
+
+        var osm=new L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{
+                        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(mymap);
+
+        geojsonUpdate();
+        document.getElementById('submitBtn').addEventListener('click', lookupMatchingWard);
+    }
+    
+    function WorldstyleNEW(feature) {
+        // example of stylling based on properties of the feature -  LAD23NM === "Lambeth" - ie council = lambeth
+        var supported_boroughs = ["Lambeth", "Southwark" ]
+        var selected_borough = feature.properties.LAD23NM;
+        if (supported_boroughs.includes(selected_borough)){
+            mcolour = 'green'
+            mopacity = 0.1
         }
-    </style>
+        else {
+            mcolour = 'red'
+            mopacity = 1
+        }
+        
+        console.log(feature)
+        return {
+            weight: 1,
+            opacity: 1,
+            color: mcolour,
+            fillOpacity: mopacity,
+            fillColor: "#00008B"
+        };
+    }
 
-</head>
-<body>
-<div id="map"></div>
-<script>
+    function handleClick(e) {
+        mymap.zoomIn();
+        
+        var properties = e.target.feature.properties;
+        var borough = properties.LAD23NM;
+        var ward = properties.WD23NM;
+        var popupContent = `You have selected<br><br><b>${borough}</b><br>${ward}<br><br>Please click OK below to continue...`;
+        updateLink(ward);
+        e.target.bindPopup(popupContent).openPopup();
+    }
+    
+    function updateLink(ward) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const request_id = urlParams.get('request_id');
+        console.log(`Found request_id=${request_id}`);
 
-var myStyle4 = {
-    "color": "#FF008B",
-    "weight": 5,
-    "opacity": 0.65
-};
+        //#request_id=xxxxx&ward=xxxxx
+        const redirect_url_base = "https://ghjngk6ao4g.typeform.com/to/mGzZcHey";
+        const redirect_url_partial = `${redirect_url_base}#request_id=${request_id}&ward=`;
+        console.log(redirect_url_partial);
+    
+        const linkElement = document.getElementById('sendToTypeform');
 
+        // Change the href attribute
+        //linkElement.href = 'https://ghjngk6ao4g.typeform.com/to/mGzZcHey#ward='+containingArea.properties.WD23NM.replace(/\s/g, "")+'&request_id='+r_id;
 
+        var newLink = `${redirect_url_partial}${ward}`;
+        console.log(newLink);
+        linkElement.href = newLink;
+    }
 
-
-
-    var mymap = L.map('map').setView([51.46, -0.01 ], 12);  
-
-    var osm=new L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(mymap);
-
-var geojsonLayer;
-
-function WorldstyleNEW(feature) {
-// example of stylling based on properties of the feature -  LAD23NM === "Lambeth" - ie council = lambeth
- if (feature.properties.LAD23NM === "Lambeth"){
- mcolour = 'green'
-}
- else
-{
- mcolour = 'red'
- }
-    console.log(feature)
-    return {
-        weight: 1,
-        opacity: 1,
-        color: mcolour,
-        fillOpacity: 0.1,
-        fillColor: "#00008B"
-    };
-}
-
-function ShowEquipment(e) {
-mymap.zoomIn();
-console.log("any code for a click here")
-}
-
-function pointMouseover(leafletEvent) {
+    function pointMouseover(leafletEvent) {
         var layer = leafletEvent.target;
         layer.setStyle({
-            weight: 2,
-            fillColor: 'white'
+            weight: 6,
+            //fillColor: 'white'
+            opacity: 1
         });
     }
 
-function pointMouseoff(leafletEvent) {
+    function pointMouseoff(leafletEvent) {
         var layer = leafletEvent.target;
         layer.setStyle({
             weight: 1,
-           fillOpacity: 0.1,
-            fillColor: "#00008B"
         });
     }
 
+    // add the code to display buffer on click
+    function onEachFeature(feature, layer) {
+        layer.on({
+            'click': handleClick,
+            'mouseover': pointMouseover,
+            'mouseout': pointMouseoff
+        });
+    }
+    
+    async function getCoordinates(postcode) {
+        //var proxy_url = 'https://corsproxy.io/?';
+        var target_url = 'https://maps.googleapis.com/maps/api/geocode/json?address='+postcode;
+        var google_api_key = '&key=AIzaSyAVDG2EjbwFZT-MsNESjJAjuWxiqUUg0UA';
 
+        let resp = await fetch(`${target_url}${google_api_key}`);
+        let data = await resp.json();
 
+        if (resp.status === 200 && data.results.length > 2) {
+            const location = data.results[0].geometry.location;
+            const latitude = location.lat;
+            const longitude = location.lng;
+            return [latitude, longitude];
+        }   
 
-// add the code to display buffer on click
-function onEachFeature(feature, layer) {
-    layer.on({
-        click: ShowEquipment,
-mouseover : pointMouseover,
-mouseout : pointMouseoff
-        // click: CompareEquipment,
-    });
-}
+        return [NaN, NaN];
+    }
+    
+    function lookupMatchingWard(event) {
+        var postcodeInput = document.getElementById('postcodeInput').value;
+        if (postcodeInput.length <= 2) {
+            alert('Invalid coordinate format. Please enter correct input.');
+            return;
+        }
+        var coords =  postcodeInput.split(',');
+        //let coords = getCoordinates(postcodeInput); // cant use the api key due to -> Browser API keys cannot have referer restrictions when used with this API.???????? 
 
+        var latitude = parseFloat(coords[0]);
+        var longitude = parseFloat(coords[1]);
 
+        if (isNaN(latitude) || isNaN(longitude)) {
+            alert('Invalid coordinates. Please enter valid latitude and longitude.');
+            return;
+        }
 
+        var clickedCoordinate = turf.point([longitude, latitude]);
+        var containingArea = findWardArea_from_point(clickedCoordinate, geoJsonAreas);
 
-// load the master mena json file
-function geojsonUpdate() {
-   
-    $.getJSON("SouthLondonWards.geojson", function(data) {    //this file is being called for the countries
+        if (containingArea) {
+            var ward = containingArea.properties.WD23NM;
+            // Do something with the containingArea properties
+            document.getElementById('result').innerText = `The ward you are in is: ${ward}`;
+            updateLink(ward);
+        } else {
+            console.log("The point is outside all areas.");
+        }
+    }
+    
+    function findWardArea_from_point(point, geojson){
+        // Loop through each feature in the GeoJSON and check if the point is inside
+        for (var i = 0; i < geojson.features.length; i++) {
+            var feature = geojson.features[i];
+            if (turf.booleanPointInPolygon(point, feature.geometry)) {
+                return feature;
+            }
+        }
+        return null; // If the point is outside all areas
+    }
 
-        // L.geoJson function is used to parse geojson file and load on to map
-        geoJsonOverlay = L.geoJson(data, {
-            style: WorldstyleNEW,
-            onEachFeature: onEachFeature,
-        }).addTo(mymap);
-    });
-}
+    // load the master mena json file
+    function geojsonUpdate() {
+       
+        $.getJSON("https://communitytechaid.github.io/LambethSouthwarkandAdjoiningAreas_Wards_highdef.geojson", function(data) {    //this file is being called for the countries
 
-geojsonUpdate();
+            // L.geoJson function is used to parse geojson file and load on to map
+            geoJsonOverlay = L.geoJson(data, {
+                style: WorldstyleNEW,
+                onEachFeature: onEachFeature,
+            }).addTo(mymap);
+        });
+    }
 
- </script>
- </body>
- </html>
+</script>
+
+<style>
+    #contents {
+        margin: auto;
+        width: 800px;
+        height:600px;
+    }
+
+    #map {
+        margin: auto;
+        width: 800px;
+        height:600px;
+
+    }
+</style>
+
+</head>
+<body onload="initializeMap()">
+    <div id="contents">
+        <textarea id="postcodeInput" placeholder="Enter your postcode or select it below"></textarea>
+        <button id="submitBtn">Find my ward</button>
+        
+        <div id="map"></div>
+        <div id="result"></div>
+        <a id="sendToTypeform" href=""><img src="ok.png" /></a>
+    </div>
+</body>
+</html>
