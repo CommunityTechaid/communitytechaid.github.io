@@ -12,6 +12,7 @@
 <script defer>
     var geojsonLayer;
     var mymap;
+    var geoJsonAreas;
     
     function initializeMap() {
         
@@ -111,15 +112,14 @@
         });
     }
     
-    async function getCoordinates(postcode) {
-        //var proxy_url = 'https://corsproxy.io/?';
-        var target_url = 'https://maps.googleapis.com/maps/api/geocode/json?address='+postcode;
-        var google_api_key = '&key=AIzaSyAVDG2EjbwFZT-MsNESjJAjuWxiqUUg0UA';
+    async function getCoordinates(lookup) {
+        var base_url = 'https://maps.googleapis.com/maps/api/geocode/json';
+        var google_api_key = 'AIzaSyCBAzYt-2zJiUupoN3Ekqap8fNVPDV6jDc';
 
-        let resp = await fetch(`${target_url}${google_api_key}`);
+        let resp = await fetch(`${base_url}?address=${lookup}&key=${google_api_key}`);
         let data = await resp.json();
 
-        if (resp.status === 200 && data.results.length > 2) {
+        if (resp.status === 200 && data.results.length > 0) {
             const location = data.results[0].geometry.location;
             const latitude = location.lat;
             const longitude = location.lng;
@@ -135,28 +135,32 @@
             alert('Invalid coordinate format. Please enter correct input.');
             return;
         }
-        var coords =  postcodeInput.split(',');
-        //let coords = getCoordinates(postcodeInput); // cant use the api key due to -> Browser API keys cannot have referer restrictions when used with this API.???????? 
+        //var coords =  postcodeInput.split(',');
+        
+        getCoordinates(postcodeInput).then((result) => {
+            const coords = result;
 
-        var latitude = parseFloat(coords[0]);
-        var longitude = parseFloat(coords[1]);
-
-        if (isNaN(latitude) || isNaN(longitude)) {
-            alert('Invalid coordinates. Please enter valid latitude and longitude.');
-            return;
-        }
-
-        var clickedCoordinate = turf.point([longitude, latitude]);
-        var containingArea = findWardArea_from_point(clickedCoordinate, geoJsonAreas);
-
-        if (containingArea) {
-            var ward = containingArea.properties.WD23NM;
-            // Do something with the containingArea properties
-            document.getElementById('result').innerText = `The ward you are in is: ${ward}`;
-            updateLink(ward);
-        } else {
-            console.log("The point is outside all areas.");
-        }
+            var latitude = parseFloat(coords[0]);
+            var longitude = parseFloat(coords[1]);
+    
+            if (isNaN(latitude) || isNaN(longitude)) {
+                alert('Invalid coordinates. Please enter valid latitude and longitude.');
+                return;
+            }
+    
+            var clickedCoordinate = turf.point([longitude, latitude]);
+            var containingArea = findWardArea_from_point(clickedCoordinate, geoJsonAreas);
+    
+            if (containingArea) {
+                var ward = containingArea.properties.WD23NM;
+                // Do something with the containingArea properties
+                document.getElementById('result').innerText = `The ward you are in is: ${ward}`;
+                updateLink(ward);
+            } else {
+                console.log("The point is outside all areas.");
+            }
+        });
+        
     }
     
     function findWardArea_from_point(point, geojson){
@@ -174,7 +178,8 @@
     function geojsonUpdate() {
        
         $.getJSON("https://communitytechaid.github.io/LambethSouthwarkandAdjoiningAreas_Wards_highdef.geojson", function(data) {    //this file is being called for the countries
-
+            geoJsonAreas = data;
+            
             // L.geoJson function is used to parse geojson file and load on to map
             geoJsonOverlay = L.geoJson(data, {
                 style: WorldstyleNEW,
@@ -198,17 +203,41 @@
         height:600px;
 
     }
+
+    .button {
+        --sampler-sem-radius-sm: 4px;
+        --sampler-comp-radius-button: var(--sampler-sem-radius-sm);
+        appearance: button;
+        position: relative;
+        font-weight: 700;
+        cursor: pointer;
+        transition-duration: 0.1s;
+        transition-property: background-color, color, border-color, opacity, box-shadow;
+        transition-timing-function: ease-out;
+        outline: none;
+        border: 1px solid transparent;
+        margin: 0px;
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 12px 0px;
+        padding: 8px 18px;
+        min-height: 48px;
+        background-color: rgb(0, 37, 144);
+        color: rgb(157, 254, 255);
+        border-radius: var(--sampler-comp-radius-button);
+        box-sizing: inherit;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;    
+    }
 </style>
 
 </head>
 <body onload="initializeMap()">
     <div id="contents">
         <textarea id="postcodeInput" placeholder="Enter your postcode or select it below"></textarea>
-        <button id="submitBtn">Find my ward</button>
+        <button id="submitBtn" class="button">Find my ward</button>
         
         <div id="map"></div>
         <div id="result"></div>
-        <a id="sendToTypeform" href=""><img src="ok.png" /></a>
+        <a id="sendToTypeform" class="button" href="">OK ✔️</a>
     </div>
 </body>
 </html>
