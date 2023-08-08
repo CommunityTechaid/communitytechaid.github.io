@@ -63,18 +63,18 @@
         var borough = properties.LAD23NM;
         var ward = properties.WD23NM;
         var popupContent = `You have selected<br><br><b>${borough}</b><br>${ward}<br><br>Please click OK below to continue...`;
-        updateLink(ward);
+        updateLink(borough, ward);
         e.target.bindPopup(popupContent).openPopup();
     }
     
-    function updateLink(ward) {
+    function updateLink(borough, ward) {
         const urlParams = new URLSearchParams(window.location.search);
         const request_id = urlParams.get('request_id');
         console.log(`Found request_id=${request_id}`);
 
         //#request_id=xxxxx&ward=xxxxx
         const redirect_url_base = "https://ghjngk6ao4g.typeform.com/to/mGzZcHey";
-        const redirect_url_partial = `${redirect_url_base}#request_id=${request_id}&ward=`;
+        const redirect_url_partial = `${redirect_url_base}#request_id=${request_id}`;
         console.log(redirect_url_partial);
     
         const linkElement = document.getElementById('sendToTypeform');
@@ -82,7 +82,7 @@
         // Change the href attribute
         //linkElement.href = 'https://ghjngk6ao4g.typeform.com/to/mGzZcHey#ward='+containingArea.properties.WD23NM.replace(/\s/g, "")+'&request_id='+r_id;
 
-        var newLink = `${redirect_url_partial}${ward}`;
+        var newLink = `${redirect_url_partial}&borough=${borough}&ward=${ward}`;
         console.log(newLink);
         linkElement.href = newLink;
     }
@@ -116,7 +116,7 @@
         var base_url = 'https://maps.googleapis.com/maps/api/geocode/json';
         var google_api_key = 'AIzaSyCBAzYt-2zJiUupoN3Ekqap8fNVPDV6jDc';
 
-        let resp = await fetch(`${base_url}?address=${lookup}&key=${google_api_key}`);
+        let resp = await fetch(`${base_url}?address=${lookup}`); //&key=${google_api_key}
         let data = await resp.json();
 
         if (resp.status === 200 && data.results.length > 0) {
@@ -131,10 +131,7 @@
     
     function lookupMatchingWard(event) {
         var postcodeInput = document.getElementById('postcodeInput').value;
-        if (postcodeInput.length <= 2) {
-            alert('Invalid coordinate format. Please enter correct input.');
-            return;
-        }
+ 
         //var coords =  postcodeInput.split(',');
         
         getCoordinates(postcodeInput).then((result) => {
@@ -144,7 +141,7 @@
             var longitude = parseFloat(coords[1]);
     
             if (isNaN(latitude) || isNaN(longitude)) {
-                alert('Invalid coordinates. Please enter valid latitude and longitude.');
+                alert('Lookup failed. Please contact support.');
                 return;
             }
     
@@ -191,6 +188,28 @@
 </script>
 
 <style>
+
+@font-face { font-family: Poppins; src: url('Poppins-Regular.ttf'); } 
+
+    :root {
+        font-family: "Poppins", sans-serif;
+        
+        visibility: visible;
+        text-align: left;
+        overflow-wrap: break-word;
+        color: rgb(0, 0, 0);
+        font-weight: unset;
+        font-size: 24px;
+        box-sizing: inherit;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    #postcodeInput {
+        width: 480px;
+        font-size: 16px;
+    }
+
     #contents {
         margin: auto;
         width: 800px;
@@ -205,6 +224,63 @@
         padding-bottom: 2em;
         margin-top: 20px;
         margin-bottom: 20px;
+    }
+    
+    .textarea {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .Logo {
+        --spacing-50: 4px;
+    --spacing-100: 8px;
+    --spacing-150: 12px;
+    --spacing-200: 16px;
+    --spacing-250: 20px;
+    --spacing-300: 24px;
+    --spacing-350: 28px;
+    --spacing-400: 32px;
+    --spacing-450: 36px;
+    --spacing-500: 40px;
+    --spacing-550: 44px;
+    --spacing-600: 48px;
+    --sampler-sem-radius-none: 0;
+    --sampler-sem-radius-sm: 4px;
+    --sampler-sem-radius-lg: 20px;
+    --sampler-sem-radius-circle: 100%;
+    --sampler-sem-radius-xsm: 2px;
+    --sampler-sem-radius-md: 8px;
+    --sampler-sem-radius-xmd: 12px;
+    --sampler-sem-radius-xxmd: 16px;
+    --sampler-theme-border-radius: var(--sampler-sem-radius-sm);
+    --sampler-sem-radius-padleft: var(--spacing-150);
+    --sampler-comp-radius-scale-max: 30px;
+    --sampler-comp-radius-sm-keyhint: var(--sampler-sem-radius-xsm);
+    --sampler-comp-radius-sm-ranking-drpdwn: var(--sampler-sem-radius-xsm);
+    --sampler-comp-radius-lg-ranking-drpdwn: var(--sampler-sem-radius-xmd);
+    --sampler-comp-radius-lg-picchoice: var(--sampler-sem-radius-md);
+    --sampler-comp-radius-none-payment: var(--sampler-sem-radius-xmd);
+    --sampler-comp-radius-sm-payment: var(--sampler-sem-radius-xmd);
+    --sampler-comp-radius-lg-payment: 34px;
+    --sampler-comp-radius-lg-matrix: 24px;
+    --sampler-comp-radius-scale: var(--sampler-sem-radius-sm);
+    --sampler-comp-radius-keyhint: var(--sampler-comp-radius-sm-keyhint);
+    --sampler-comp-radius-ranking-drpdwn: var(--sampler-comp-radius-sm-ranking-drpdwn);
+    --sampler-comp-radius-picchoice: var(--sampler-sem-radius-sm);
+    --sampler-comp-radius-file-upload: var(--sampler-sem-radius-sm);
+    --sampler-comp-radius-file-upload-preview: var(--sampler-sem-radius-sm);
+    --sampler-comp-radius-payment: var(--sampler-comp-radius-sm-payment);
+    --sampler-comp-radius-matrix: var(--sampler-sem-radius-sm);
+    --sampler-comp-radius-button: var(--sampler-sem-radius-sm);
+    --sampler-comp-radius-button-focus: 6px;
+    --sampler-comp-radius-footer: var(--sampler-sem-radius-sm);
+    --sampler-comp-padding-footer: var(--spacing-150);
+    font-family: sans-serif;
+    color: transparent;
+    fill: currentColor;
+    border: 0px;
+    max-width: 100%;
+    max-height: 40px;
     }
 
     .button {
@@ -222,25 +298,32 @@
         margin: 0px;
         box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 12px 0px;
         padding: 8px 18px;
-        min-height: 48px;
+        //min-height: 48px;
         background-color: rgb(0, 37, 144);
         color: rgb(157, 254, 255);
         border-radius: var(--sampler-comp-radius-button);
         box-sizing: inherit;
         -webkit-font-smoothing: antialiased;
         -webkit-tap-highlight-color: transparent;    
+        text-decoration: none;
+        font-size: 16px;
     }
+    
 </style>
 
 </head>
 <body onload="initializeMap()">
     <div id="contents">
-        <textarea id="postcodeInput" placeholder="Enter your postcode or select it below"></textarea>
-        <button id="submitBtn" class="button">Find my ward</button>
-        
+    <img src="cta_logo.png" alt="Community TechAid with a blue smiley face above the text" data-qa="brand-logo" class="Logo">
+        <p>Where is your client's location of residence*?</p>
+        <div class="textarea">
+            <input type="text" id="postcodeInput" placeholder="Enter your postcode or select it below">
+        </div>
+        <button id="submitBtn" class="button">Lookup postcode</button>
         <div id="map"></div>
         <div id="result"></div>
         <a id="sendToTypeform" class="button" href="">OK ✔️</a>
+        <p>* we only store the borough and ward, not the postcode
     </div>
 </body>
 </html>
