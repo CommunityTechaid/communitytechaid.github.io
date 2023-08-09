@@ -14,7 +14,10 @@
     var mymap;
     var geoJsonAreas;
     var marker;
+    var hasScrolled = false;
+    var hasZoomed = false;
     const lookupFailureMessage = 'Lookup failed. Please contact support, and use an alternate method in the meantime.';
+    const redirect_url_base = "https://ghjngk6ao4g.typeform.com/to/mGzZcHey";
     
     //Note, we are a charity using this for a client-side maps lookup
     //Please don't steal this key. 
@@ -32,44 +35,51 @@
         //center map on Ruskin Park, which is a reasonable epicenter for Lambeth and Southwark
         //51.4644464,-0.0965217,17z
         mymap = L.map('map').setView([51.46, -0.097 ], 12);  
-
-        var osm=new L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{
+        var osm = new L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{
                         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(mymap);
 
         geojsonUpdate();
         document.getElementById('submitBtn').addEventListener('click', lookupMatchingWard);
     }
     
-    function WorldstyleNEW(feature) {
-        // example of stylling based on properties of the feature -  LAD23NM === "Lambeth" - ie council = lambeth
+    function getWorldStyle(feature) {
+        // example of styling based on properties of the feature -  LAD23NM === "Lambeth" - ie council = lambeth
         var supported_boroughs = ["Lambeth", "Southwark" ]
         var selected_borough = feature.properties.LAD23NM;
         if (supported_boroughs.includes(selected_borough)){
-            mcolour = 'green'
-            mopacity = 0.1
+            mcolour = 'green';
+            mopacity = 0.1;
         }
         else {
-            mcolour = 'red'
-            mopacity = 1
+            mcolour = 'yellow';
         }
         
         return {
             weight: 1,
             opacity: 1,
             color: mcolour,
-            fillOpacity: mopacity,
-            fillColor: "#00008B"
+            fillOpacity: mopacity
         };
     }
 
     function handleClick(e) {
-        mymap.zoomIn();
+        try { mymap.removeLayer(marker); } catch { }
         
         const [borough, ward] = updatePageWithWard(e.target.feature.properties);
         const popupContent = `<b>${borough}</b><br>${ward}`;
 
         let p = new L.Popup({ autoClose: true}).setContent(popupContent);
         e.target.bindPopup(p).openPopup();
+        handleZoom();
+        handleScroll();
+    }
+
+    function handleZoom() {
+        if(!hasZoomed) { mymap.zoomIn(); hasZoomed = true; } 
+    }
+
+    function handleScroll() {
+        if(!hasScrolled) { window.scrollTo(0, document.body.scrollHeight); hasScrolled = true; }
     }
 
     function updatePageWithWard(properties) {
@@ -87,7 +97,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const request_id = urlParams.get('request_id');
         
-        const redirect_url_base = "https://ghjngk6ao4g.typeform.com/to/mGzZcHey";
         const redirect_url_partial = `${redirect_url_base}#request_id=${request_id}`;
         
         const linkElement = document.getElementById('sendToTypeform');
@@ -168,14 +177,18 @@
             if (containingArea) {
                 const [borough, ward] = updatePageWithWard(containingArea.properties);
                 const popupContent = `<b>${borough}</b><br>${ward}`;
-        
+                mymap.setView(new L.LatLng(latitude, longitude), 13);
+                
                 let p = new L.Popup({ autoClose: true}).setContent(popupContent);
                 marker = L.marker([latitude, longitude]);
                 mymap.addLayer(marker);
                 marker.bindPopup(p).openPopup();
                 
-                mymap.setView([latitude, longitude], 12)
+                //handleScroll();
+                hasZoomed = true;
                 updatePageWithWard(containingArea.properties);
+                //handleZoom();
+                handleScroll();
             } else {
                 console.log("The point is outside all areas.");
             }
@@ -194,7 +207,6 @@
         return null; // If the point is outside all areas
     }
 
-    // load the master mena json file
     function geojsonUpdate() {
        
         $.getJSON("https://communitytechaid.github.io/LambethSouthwarkandAdjoiningAreas_Wards_highdef.geojson", function(data) {    //this file is being called for the countries
@@ -202,7 +214,7 @@
             
             // L.geoJson function is used to parse geojson file and load on to map
             geoJsonOverlay = L.geoJson(data, {
-                style: WorldstyleNEW,
+                style: getWorldStyle,
                 onEachFeature: onEachFeature,
             }).addTo(mymap);
         });
@@ -231,6 +243,7 @@
     #postcodeInput {
         width: 480px;
         font-size: 16px;
+        line-height: 24px;
     }
 
     #contents {
@@ -246,6 +259,10 @@
         padding-top: 2em;
         padding-bottom: 2em;
         margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    #sendToTypeform, #result {
         margin-bottom: 20px;
     }
     
@@ -287,6 +304,10 @@
         text-decoration: none;
         font-size: 16px;
     }
+
+    input[type="text"], input[type="password"], textarea, select { 
+        outline: none;
+    }
     
 </style>
 
@@ -294,15 +315,14 @@
 <body onload="initializeMap()">
     <div id="contents">
     <img src="cta_logo.png" alt="Community TechAid with a blue smiley face above the text" data-qa="brand-logo" class="Logo">
-        <p>Where is your client's location of residence*?</p>
-        <div class="textarea">
-            <input type="text" id="postcodeInput" placeholder="Enter your postcode or select it below">
-        </div>
-        <button id="submitBtn" class="button">Lookup postcode</button>
+        <p>Where is your client's location of residence? Please pick your ward from the map below</p>
         <div id="map"></div>
-        <div id="result"></div>
-        <a id="sendToTypeform" class="button" href="">OK ✔️</a>
-        <p>* we only store the borough and ward, not the postcode
+        <div class="textarea">
+            <input type="text" id="postcodeInput" placeholder="Optionally enter your postcode (Ex: SE11 4AB)" tabindex="0">
+            <button id="submitBtn" class="button" tabindex="1">Lookup postcode</button>
+        </div>
+        <div id="result">You have not selected a ward yet</div>
+        <a id="sendToTypeform" class="button" href="" tabindex="2">OK ✔️</a>
     </div>
 </body>
 </html>
