@@ -8,6 +8,9 @@
 <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet-src.js"></script>
 <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
 <script src="https://iissstaticwebcontent.blob.core.windows.net/production/shared/js/jquery.min.js"></script>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <!-- <script src="turf.js"></script> -->
 <script defer>
     var geojsonLayer;
@@ -35,10 +38,17 @@
 
         //center map on Ruskin Park, which is a reasonable epicenter for Lambeth and Southwark
         //51.4644464,-0.0965217,17z
-        mymap = L.map('map').setView([51.46, -0.097 ], 12);  
+        mymap = L.map('map',{
+            tap: false,
+            dragging: false,
+            zoomControl: false,
+            scrollWheelZoom:false,
+        }).setView([51.46, -0.097 ], 12);  
         var osm = new L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{
-                        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(mymap);
-
+                        attribution: '&copy; <a tabindex="-1" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                        
+                        }).addTo(mymap);
+        // i dont know if thats allowed but i added tabindex="-1" to the hyperlink here because its annoying.
         geojsonUpdate();
         document.getElementById('submitBtn').addEventListener('click', lookupMatchingWard);
     }
@@ -71,13 +81,13 @@
 
         let p = new L.Popup({ autoClose: true}).setContent(popupContent);
         e.target.bindPopup(p).openPopup();
-        handleZoom();
+        //handleZoom();
         handleScroll();
     }
 
-    function handleZoom() {
-        if(!hasZoomed) { mymap.zoomIn(); hasZoomed = true; } 
-    }
+    //function handleZoom() {
+  //      if(!hasZoomed) { mymap.zoomIn(); hasZoomed = true; } 
+   // }
 
     function handleScroll() {
         if(!hasScrolled) { window.scrollTo(0, document.body.scrollHeight); hasScrolled = true; }
@@ -186,7 +196,7 @@
                 marker.bindPopup(p).openPopup();
                 
                 //handleScroll();
-                hasZoomed = true;
+                //hasZoomed = true;
                 updatePageWithWard(containingArea.properties);
                 //handleZoom();
                 handleScroll();
@@ -242,25 +252,28 @@
     }
 
     #postcodeInput {
-        width: 480px;
+        width: auto;
         font-size: 16px;
         line-height: 24px;
     }
 
     #contents {
         margin: auto;
-        width: 800px;
-        height:600px;
+        width: 80%;
+        height:900px;
     }
 
     #map {
         margin: auto;
-        width: 800px;
-        height:600px;
+        width: 100%;
+        height:500px;
         padding-top: 2em;
         padding-bottom: 2em;
         margin-top: 20px;
         margin-bottom: 20px;
+    }
+    @media (max-width: 500px) {
+
     }
 
     #sendToTypeform, #result {
@@ -306,24 +319,36 @@
         font-size: 16px;
     }
 
+    .button:focus {
+            border-color: white; /* White inner border */
+            box-shadow: 0px 2px 1px 3px #3498db ;
+    }
+
     input[type="text"], input[type="password"], textarea, select { 
         outline: none;
     }
+    
     
 </style>
 
 </head>
 <body onload="initializeMap()">
+
+
+
+
     <div id="contents">
-    <img src="cta_logo.png" alt="Community TechAid with a blue smiley face above the text" data-qa="brand-logo" class="Logo">
+        <img src="cta_logo.png" alt="Community TechAid with a blue smiley face above the text" data-qa="brand-logo" class="Logo">
         <p>Where is your client's location of residence? Please pick your ward from the map below</p>
-        <div id="map"></div>
+        <div id="map" tabindex="-1"></div>
         <div class="textarea">
             <input type="text" id="postcodeInput" placeholder="Optionally enter your postcode (Ex: SE11 4AB)" tabindex="0">
-            <button id="submitBtn" class="button" tabindex="1">Lookup postcode</button>
+            <button id="submitBtn" class="button" tabindex="0">Lookup postcode</button>
         </div>
         <div id="result">You have not selected a ward yet</div>
-        <a id="sendToTypeform" class="button" href="" tabindex="2">OK ✔️</a>
+        <a id="sendToTypeform" class="button" href="" tabindex="0">OK ✔️</a>
     </div>
 </body>
 </html>
+
+
