@@ -252,7 +252,7 @@
     }
 
     #postcodeInput {
-        width: auto;
+        width: 30vw;
         font-size: 16px;
         line-height: 24px;
     }
@@ -324,6 +324,8 @@
             box-shadow: 0px 2px 1px 3px #3498db ;
     }
 
+
+
     input[type="text"], input[type="password"], textarea, select { 
         outline: none;
     }
@@ -339,12 +341,16 @@
 
     <div id="contents">
         <img src="cta_logo.png" alt="Community TechAid with a blue smiley face above the text" data-qa="brand-logo" class="Logo">
+
         <p>Where is your client's location of residence? Please pick your ward from the map below</p>
-        <div id="map" tabindex="-1"></div>
+
         <div class="textarea">
             <input type="text" id="postcodeInput" placeholder="Optionally enter your postcode (Ex: SE11 4AB)" tabindex="0">
             <button id="submitBtn" class="button" tabindex="0">Lookup postcode</button>
         </div>
+
+        <div id="map" tabindex="-1"></div>
+        
         <div id="result">You have not selected a ward yet</div>
         <a id="sendToTypeform" class="button" href="" tabindex="0">OK ✔️</a>
     </div>
