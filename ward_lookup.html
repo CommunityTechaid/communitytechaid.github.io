@@ -21,30 +21,32 @@
     var hasZoomed = false;
     const lookupFailureMessage = 'Lookup failed. Please contact support, and use an alternate method in the meantime.';
     const redirect_url_base = "https://ghjngk6ao4g.typeform.com/to/mGzZcHey";
-    const geojsonLink = "https://communitytechaid.github.io/LambethSouthwark_Wards_highdef.geojson";
+    const geojsonLink = "LambethSouthwarkandAdjoiningAreas_Wards_highdef.geojson";
     
     //Note, we are a charity using this for a client-side maps lookup
     //Please don't steal this key. 
     //We set a quota on this, so if you abuse it, this will negatively impact our beneficiaries
     const google_maps_api_key = 'AIzaSyDz9GwgyHhAlvIyMYCen3aBqr7WE2OZmI8'
     
-    function initializeMap() {
-        
-        var myStyle4 = {
-            "color": "#FF008B",
-            "weight": 5,
-            "opacity": 0.65
-        };
+    var view_borough = " ";  
+    // todo centre map to boroughs ?
+    function getQueryStringData(){
+        const urlParams = new URLSearchParams(window.location.search);
+        const borough = urlParams.get('borough');
 
+        if(borough){
+            view_borough = borough;
+            document.getElementById('dbxBoroughs').selectedIndex = (view_borough == "Lambeth" ? 1 : 2); // Some may say this isnt readable by using ternary operator but its fine.
+        }
+    }
+
+    function initializeMap() {
         //center map on Ruskin Park, which is a reasonable epicenter for Lambeth and Southwark
         //51.4644464,-0.0965217,17z
         mymap = L.map('map',{
-            tap: false,
-            dragging: false,
-            zoomControl: false,
-            scrollWheelZoom:false,
+
         }).setView([51.46, -0.097 ], 12);  
-        var osm = new L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',{
+        var osm = new L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',{
                         attribution: '&copy; <a tabindex="-1" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
                         
                         }).addTo(mymap);
@@ -54,17 +56,20 @@
     }
     
     function getWorldStyle(feature) {
-        // example of styling based on properties of the feature -  LAD23NM === "Lambeth" - ie council = lambeth
-        var supported_boroughs = ["Lambeth", "Southwark" ]
+        // example of styling based on properties of the feature -  LAD23NM === "Lambeth" - ie council = lambet
+
+
+        var supported_boroughs = ["Lambeth", "Southwark"]
         var selected_borough = feature.properties.LAD23NM;
+
+        var mopacity = 0.2;
         if (supported_boroughs.includes(selected_borough)){
             mcolour = 'green';
-            mopacity = 0.1;
         }
         else {
             mcolour = 'yellow';
         }
-        
+
         return {
             weight: 1,
             opacity: 1,
@@ -81,13 +86,13 @@
 
         let p = new L.Popup({ autoClose: true}).setContent(popupContent);
         e.target.bindPopup(p).openPopup();
-        //handleZoom();
+        handleZoom();
         handleScroll();
     }
 
-    //function handleZoom() {
-  //      if(!hasZoomed) { mymap.zoomIn(); hasZoomed = true; } 
-   // }
+    function handleZoom() {
+        if(!hasZoomed) { mymap.zoomIn(); hasZoomed = true; } 
+    }
 
     function handleScroll() {
         if(!hasScrolled) { window.scrollTo(0, document.body.scrollHeight); hasScrolled = true; }
@@ -198,7 +203,7 @@
                 //handleScroll();
                 //hasZoomed = true;
                 updatePageWithWard(containingArea.properties);
-                //handleZoom();
+                handleZoom();
                 handleScroll();
             } else {
                 console.log("The point is outside all areas.");
@@ -227,10 +232,34 @@
             geoJsonOverlay = L.geoJson(data, {
                 style: getWorldStyle,
                 onEachFeature: onEachFeature,
+                filter: boroughFilter,
             }).addTo(mymap);
         });
     }
 
+    function boroughFilter(feature){
+        if(view_borough == " ") 
+            return true;  // if view_borough global variable is an empty string " " then show all of boroughs.
+
+
+        if(feature.properties.LAD23NM == view_borough)
+            return true; // shows only the borough that is in the global variable 
+
+    }
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var dropdown = document.getElementById("dbxBoroughs");
+
+        dropdown.addEventListener("change", function() {
+            var selectedOption = dropdown.value;
+
+            view_borough = selectedOption;
+            mymap.remove();
+
+            initializeMap();
+        });
+    });
 </script>
 
 <style>
@@ -251,8 +280,26 @@
         -webkit-tap-highlight-color: transparent;
     }
 
+    #dbxBoroughs {
+        width: 20ch;
+        border-radius: 4px;
+        border: 1px solid transparent;
+                box-sizing: inherit;
+        -webkit-font-smoothing: antialiased;
+        -webkit-tap-highlight-color: transparent;    
+        text-decoration: none;
+        appearance: button;
+        font-size: 16px;
+    }
+
+    
+    #dbxBoroughs:focus {
+            border-color: white; /* White inner border */
+            box-shadow: 0px 2px 1px 3px #3498db ;
+    }
+
     #postcodeInput {
-        width: 30vw;
+        width: 35vw;
         font-size: 16px;
         line-height: 24px;
     }
@@ -266,7 +313,7 @@
     #map {
         margin: auto;
         width: 100%;
-        height:500px;
+        height:600px;
         padding-top: 2em;
         padding-bottom: 2em;
         margin-top: 20px;
@@ -334,19 +381,21 @@
 </style>
 
 </head>
-<body onload="initializeMap()">
-
-
-
-
+<body onload="getQueryStringData(); initializeMap();">
     <div id="contents">
         <img src="cta_logo.png" alt="Community TechAid with a blue smiley face above the text" data-qa="brand-logo" class="Logo">
 
         <p>Where is your client's location of residence? Please pick your ward from the map below</p>
 
+        <select tabindex="0" name="boroughs" id="dbxBoroughs">
+                <option value=" ">all</option>
+                <option value="Lambeth">Lambeth</option>
+                <option value="Southwark">Southwark</option>
+            </select>
         <div class="textarea">
-            <input type="text" id="postcodeInput" placeholder="Optionally enter your postcode (Ex: SE11 4AB)" tabindex="0">
-            <button id="submitBtn" class="button" tabindex="0">Lookup postcode</button>
+            
+            <input type="text" id="postcodeInput" placeholder="Not sure of your client's ward? Enter their postcode here (E.g. SE11 4AB)" tabindex="0">
+            <button id="submitBtn" class="button" tabindex="0">Lookup ward</button>
         </div>
 
         <div id="map" tabindex="-1"></div>
