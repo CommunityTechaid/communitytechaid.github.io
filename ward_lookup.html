@@ -29,6 +29,7 @@
     const google_maps_api_key = 'AIzaSyDz9GwgyHhAlvIyMYCen3aBqr7WE2OZmI8'
     
     var view_borough = " ";  
+    var view_borough_pos = [0, 0];   
     // todo centre map to boroughs ?
     function getQueryStringData(){
         const urlParams = new URLSearchParams(window.location.search);
@@ -41,11 +42,11 @@
     }
 
     function initializeMap() {
-        //center map on Ruskin Park, which is a reasonable epicenter for Lambeth and Southwark
-        //51.4644464,-0.0965217,17z
+        view_borough_pos = view_borough == "Southwark" ? [51.474931, -0.069] : [51.461862, -0.115451]; // TODO not the best but works for now.
+
         mymap = L.map('map',{
 
-        }).setView([51.46, -0.097 ], 12);  
+        }).setView(view_borough_pos, 12);  
         var osm = new L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',{
                         attribution: '&copy; <a tabindex="-1" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
                         
