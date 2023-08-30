@@ -41,7 +41,7 @@
         }
     }
 
-    function removeMapFocus(){
+    function removeMapBtnsFocus(){
         // hacky but cant figure out the proper way of doing so.
         var zoomInButton = document.querySelector('.leaflet-control-zoom-in');
         var zoomOutButton = document.querySelector('.leaflet-control-zoom-out');
@@ -67,7 +67,7 @@
         // i dont know if thats allowed but i added tabindex="-1" to the hyperlink here because its annoying.
         geojsonUpdate();
         document.getElementById('submitBtn').addEventListener('click', lookupMatchingWard);
-        removeMapFocus();
+        removeMapBtnsFocus();
     }
     
     function getWorldStyle(feature) {
