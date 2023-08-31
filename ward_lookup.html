@@ -41,7 +41,20 @@
         }
     }
 
+    function removeMapBtnsFocus(){
+        // hacky but cant figure out the proper way of doing so.
+        var zoomInButton = document.querySelector('.leaflet-control-zoom-in');
+        var zoomOutButton = document.querySelector('.leaflet-control-zoom-out');
+
+        var mapcontrol = document.querySelector('.leaflet-control-attribution a');
+
+        zoomInButton.setAttribute('tabindex', '-1');
+        zoomOutButton.setAttribute('tabindex', '-1');
+        mapcontrol.setAttribute('tabindex', '-1');
+    }
+
     function initializeMap() {
+
         view_borough_pos = view_borough == "Southwark" ? [51.474931, -0.069] : [51.461862, -0.115451]; // TODO not the best but works for now.
 
         mymap = L.map('map',{
@@ -54,6 +67,7 @@
         // i dont know if thats allowed but i added tabindex="-1" to the hyperlink here because its annoying.
         geojsonUpdate();
         document.getElementById('submitBtn').addEventListener('click', lookupMatchingWard);
+        removeMapBtnsFocus();
     }
     
     function getWorldStyle(feature) {
@@ -68,7 +82,8 @@
             mcolour = 'green';
         }
         else {
-            mcolour = 'yellow';
+            mcolour = 'grey';
+            mopacity = 0.1
         }
 
         return {
@@ -262,6 +277,10 @@
             initializeMap();
         });
     });
+
+    function onaction(){
+        window.alert("adad");
+    }
 </script>
 
 <style>
@@ -373,12 +392,22 @@
             box-shadow: 0px 2px 1px 3px #3498db ;
     }
 
-
+    #postcodeInput:focus {
+        box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 12px 0px;
+            border-color: white; /* White inner border */
+            box-shadow: 0px 2px 1px 3px #3498db ;
+    }
 
     input[type="text"], input[type="password"], textarea, select { 
         outline: none;
     }
     
+    #button-container{
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        z-index: 1000; 
+    }
     
 </style>
 
@@ -394,13 +423,15 @@
                 <option value="Lambeth">Lambeth</option>
                 <option value="Southwark">Southwark</option>
             </select>
-        <div class="textarea">
+        <div class="textarea" >
             
-            <input type="text" id="postcodeInput" placeholder="Not sure of your client's ward? Enter their postcode here (E.g. SE11 4AB)" tabindex="0">
+            <input type="text" id="postcodeInput" placeholder="Not sure of your client's ward? Enter their postcode" tabindex="0">
             <button id="submitBtn" class="button" tabindex="0">Lookup ward</button>
         </div>
 
-        <div id="map" tabindex="-1"></div>
+        <div id="map" tabindex="-1">
+        </div>
+
         
         <div id="result">You have not selected a ward yet</div>
         <a id="sendToTypeform" class="button" href="" tabindex="0">OK ✔️</a>
