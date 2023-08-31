@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <title>CommunityTechAid - Ward Lookup</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.1/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet-src.js"></script>
-<script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
-<script src="https://iissstaticwebcontent.blob.core.windows.net/production/shared/js/jquery.min.js"></script>
+<link rel="stylesheet" href="3rdparty/leaflet.css" />
+<script src="3rdparty/leaflet-src.js"></script>
+<script src="3rdparty/turf.min.js"></script>
+<script src="3rdparty/jquery.min.js"></script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -21,7 +21,7 @@
     var hasZoomed = false;
     const lookupFailureMessage = 'Lookup failed. Please contact support, and use an alternate method in the meantime.';
     const redirect_url_base = "https://ghjngk6ao4g.typeform.com/to/mGzZcHey";
-    const geojsonLink = "https://communitytechaid.github.io/LambethSouthwarkandAdjoiningAreas_Wards_highdef.geojson";
+    const geojsonLink = "https://communitytechaid.github.io/LambethSouthwark_Wards_highdef.geojson";
     
     //Note, we are a charity using this for a client-side maps lookup
     //Please don't steal this key. 
@@ -390,7 +390,7 @@
         <p>Where is your client's location of residence? Please pick your ward from the map below</p>
 
         <select tabindex="0" name="boroughs" id="dbxBoroughs">
-                <option value=" ">all</option>
+                <option value=" ">All Boroughs</option>
                 <option value="Lambeth">Lambeth</option>
                 <option value="Southwark">Southwark</option>
             </select>
