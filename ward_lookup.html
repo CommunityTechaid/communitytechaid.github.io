@@ -37,20 +37,13 @@
 
         if(borough){
             view_borough = borough;
-            document.getElementById('dbxBoroughs').selectedIndex = (view_borough == "Lambeth" ? 1 : 2); // Some may say this isnt readable by using ternary operator but its fine.
         }
     }
 
     function removeMapBtnsFocus(){
-        // hacky but cant figure out the proper way of doing so.
-        var zoomInButton = document.querySelector('.leaflet-control-zoom-in');
-        var zoomOutButton = document.querySelector('.leaflet-control-zoom-out');
-
-        var mapcontrol = document.querySelector('.leaflet-control-attribution a');
-
-        zoomInButton.setAttribute('tabindex', '-1');
-        zoomOutButton.setAttribute('tabindex', '-1');
-        mapcontrol.setAttribute('tabindex', '-1');
+        $( ".leaflet-control-zoom-in" ).attr( "tabindex", "-1" );
+        $( ".leaflet-control-zoom-out" ).attr( "tabindex", "-1" );
+        $( ".leaflet-control-attribution a" ).attr( "tabindex", "-1" );
     }
 
     function initializeMap() {
@@ -58,7 +51,6 @@
         view_borough_pos = view_borough == "Southwark" ? [51.474931, -0.069] : [51.461862, -0.115451]; // TODO not the best but works for now.
 
         mymap = L.map('map',{
-
         }).setView(view_borough_pos, 12);  
         var osm = new L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',{
                         attribution: '&copy; <a tabindex="-1" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
@@ -264,23 +256,6 @@
 
     }
 
-
-    document.addEventListener("DOMContentLoaded", function() {
-        var dropdown = document.getElementById("dbxBoroughs");
-
-        dropdown.addEventListener("change", function() {
-            var selectedOption = dropdown.value;
-
-            view_borough = selectedOption;
-            mymap.remove();
-
-            initializeMap();
-        });
-    });
-
-    function onaction(){
-        window.alert("adad");
-    }
 </script>
 
 <style>
@@ -323,6 +298,30 @@
         width: 35vw;
         font-size: 16px;
         line-height: 24px;
+
+
+
+        font-family: inherit;
+        color: rgb(0, 37, 144);
+        padding: 0px 0px 8px;
+        border: medium;
+        outline: none;
+        border-radius: 0px;
+        appearance: none;
+        background-position: 0% 0%;
+        background-clip: border-box;
+        transform: translateZ(0px);
+        line-height: unset;
+        -webkit-text-fill-color: rgba(0, 37, 144, 0.3);
+        background-color: transparent !important;
+        animation: 1ms ease 0s 1 normal none running native-autofill-in;
+        transition: background-color 100000000s ease 0s, box-shadow 0.1s ease-out 0s;
+        box-shadow: rgba(0, 37, 144, 0.3) 0px 1px;
+    }
+
+    #postcodeInput:focus {
+        -webkit-text-fill-color: rgb(0, 37, 144);
+        box-shadow: rgba(0, 37, 144 ) 0px 2px;
     }
 
     #contents {
@@ -392,11 +391,7 @@
             box-shadow: 0px 2px 1px 3px #3498db ;
     }
 
-    #postcodeInput:focus {
-        box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 12px 0px;
-            border-color: white; /* White inner border */
-            box-shadow: 0px 2px 1px 3px #3498db ;
-    }
+    
 
     input[type="text"], input[type="password"], textarea, select { 
         outline: none;
@@ -409,6 +404,21 @@
         z-index: 1000; 
     }
     
+    #info{
+       color: rgba(0, 0, 0, 0.7);
+       font-size: 20px;
+       margin: 0px;
+       font-weight: unset;
+       overflow-wrap: break-word;
+    }
+
+    #mdfg{
+       font-size: 24px;
+       margin-bottom: 0px;
+       font-weight: unset;
+       line-height: 32px;
+    }
+
 </style>
 
 </head>
@@ -416,13 +426,9 @@
     <div id="contents">
         <img src="cta_logo.png" alt="Community TechAid with a blue smiley face above the text" data-qa="brand-logo" class="Logo">
 
-        <p>Where is your client's location of residence? Please pick your ward from the map below</p>
+        <p id='mdfg'>Where is your client's location of residence?</p>
+        <p id='info'>Please pick your ward from the map below</p>
 
-        <select tabindex="0" name="boroughs" id="dbxBoroughs">
-                <option value=" ">All Boroughs</option>
-                <option value="Lambeth">Lambeth</option>
-                <option value="Southwark">Southwark</option>
-            </select>
         <div class="textarea" >
             
             <input type="text" id="postcodeInput" placeholder="Not sure of your client's ward? Enter their postcode" tabindex="0">
