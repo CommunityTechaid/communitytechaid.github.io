@@ -32,7 +32,7 @@
     var hasZoomed = false;
     const lookupFailureMessage = 'Lookup failed. Please contact support, and use an alternate method in the meantime.';
     const redirect_url_base = "https://ghjngk6ao4g.typeform.com/to/mGzZcHey";
-    const geojsonLink = "https://communitytechaid.github.io/LambethSouthwarkandAdjoiningAreas_Wards_highdef.geojson";
+    const geojsonLink = "https://communitytechaid.github.io/LambethSouthwarkandAdjoiningAreas_Wards_highdef_Dec2024.geojson";
     
     //Note, we are a charity using this for a client-side maps lookup
     //Please don't steal this key. 
@@ -74,11 +74,11 @@
     }
     
     function getWorldStyle(feature) {
-        // example of styling based on properties of the feature -  LAD23NM === "Lambeth" - ie council = lambet
+        // example of styling based on properties of the feature -  LAD24NM === "Lambeth" - ie council = lambet
 
 
         var supported_boroughs = ["Lambeth", "Southwark"]
-        var selected_borough = feature.properties.LAD23NM;
+        var selected_borough = feature.properties.LAD24NM;
 
         var mopacity = 0.2;
         if (supported_boroughs.includes(selected_borough)){
@@ -119,8 +119,8 @@
     }
 
     function updatePageWithWard(properties) {
-        let borough = properties.LAD23NM;
-        let ward = properties.WD23NM;
+        let borough = properties.LAD24NM;
+        let ward = properties.WD24NM;
         updateLink(borough, ward);
         
         const resultText = `You have selected ward ${ward} in the borough of ${borough}`;
@@ -263,7 +263,7 @@
             return true;  // if view_borough global variable is an empty string " " then show all of boroughs.
 
 
-        if(feature.properties.LAD23NM == view_borough)
+        if(feature.properties.LAD24NM == view_borough)
             return true; // shows only the borough that is in the global variable 
 
     }
