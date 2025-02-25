@@ -32,6 +32,11 @@
     var hasZoomed = false;
     const lookupFailureMessage = 'Lookup failed. Please contact support, and use an alternate method in the meantime.';
     const redirect_url_base = "https://ghjngk6ao4g.typeform.com/to/mGzZcHey";
+    
+    //Note: Ward boundaries can change. When that happens, you need to download updated high-definition geographic data from the
+    //government website here: https://geoportal.statistics.gov.uk/search?q=wards%20boundaries&sort=Date%20Created%7Ccreated%7Casc
+    //Also be aware that this code refers to attribute names within the geographic JSON data, and these names can change
+    //For example, the borough name is stored in LAD24NM, but previously that field was called LAD23NM. Ward data is now stored in WD24NM
     const geojsonLink = "https://communitytechaid.github.io/LambethSouthwarkandAdjoiningAreas_Wards_highdef_Dec2024.geojson";
     
     //Note, we are a charity using this for a client-side maps lookup
