@@ -144,7 +144,13 @@
 
         var newLink = `${redirect_url_partial}&borough=${borough}&ward=${ward}`;
         console.log(newLink);
-        linkElement.href = newLink;
+        linkElement.dataset.url = newLink;
+    }
+
+    function visitLink(){
+        const linkElement = document.getElementById('sendToTypeform');
+        var url = linkElement.dataset.url;
+        location.href = url;
     }
 
     function pointMouseover(leafletEvent) {
@@ -457,7 +463,7 @@
 
         
         <div id="result">You have not selected a ward yet</div>
-        <a id="sendToTypeform" class="button" href="" tabindex="0">OK ✔️</a>
+        <button id="sendToTypeform" class="button" data-url="" onclick="visitLink()" tabindex="0">OK ✔️</button>
     </div>
 </body>
 </html>
