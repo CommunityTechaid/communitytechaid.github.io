@@ -150,8 +150,25 @@
     function visitLink(){
         const linkElement = document.getElementById('sendToTypeform');
         var url = linkElement.dataset.url;
+        if (!url){
+            return;
+        }
+        fireCustomSubmitEvent(url);
         location.href = url;
     }
+
+    function fireCustomSubmitEvent(url) {
+            
+        const urlParams = new URLSearchParams(url.split('#')[1]); 
+        const borough = urlParams.get('borough');
+        const ward = urlParams.get('ward');
+
+        window.postMessage({
+            ward: ward,
+            borough: borough
+        }, "*");
+    }
+
 
     function pointMouseover(leafletEvent) {
         let layer = leafletEvent.target;
