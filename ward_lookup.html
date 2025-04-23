@@ -153,8 +153,14 @@
         if (!url){
             return;
         }
-        fireCustomSubmitEvent(url);
-        location.href = url;
+        let params = new URLSearchParams(document.location.search);
+        if (params.get("tada")) {
+            fireCustomSubmitEvent(url);
+        } else {
+            location.href = url;
+
+        }
+        
     }
 
     function fireCustomSubmitEvent(url) {
@@ -254,8 +260,17 @@
                 handleZoom();
                 handleScroll();
             } else {
-                alert("Unfortunately, we can only support people in Lambeth and Southwark currently.\nFor any questions, contact distributions@communitytechaid.org.uk");
-                console.log("The point is outside all areas.");
+                let params = new URLSearchParams(document.location.search);
+                if (params.get("tada")) {
+                    window.postMessage({
+                        ward: "unsupported",
+                        borough: "unsupported"
+                    }, "*");
+                }else{
+                    alert("Unfortunately, we can only support people in Lambeth and Southwark currently.\nFor any questions, contact distributions@communitytechaid.org.uk");
+                    console.log("The point is outside all areas.");
+                }
+                
             }
         });
         
