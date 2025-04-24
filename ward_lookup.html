@@ -153,7 +153,7 @@
         if (!url){
             return;
         }
-        let params = new URLSearchParams(document.location.href);
+        let params = new URLSearchParams(document.location.search);
         if (params.get("tada")) {
             fireCustomSubmitEvent(url);
         } else {
@@ -260,8 +260,7 @@
                 handleZoom();
                 handleScroll();
             } else {
-                let params = new URLSearchParams(document.location.href);
-                console.log(params);
+                let params = new URLSearchParams(document.location.search);
                 if (params.get("tada")) {
                     window.postMessage({
                         ward: "unsupported",
