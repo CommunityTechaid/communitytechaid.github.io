@@ -169,7 +169,7 @@
         const borough = urlParams.get('borough');
         const ward = urlParams.get('ward');
 
-        window.postMessage({
+        window.parent.postMessage({
             ward: ward,
             borough: borough
         }, "*");
@@ -262,7 +262,7 @@
             } else {
                 let params = new URLSearchParams(document.location.search);
                 if (params.get("tada")) {
-                    window.postMessage({
+                    window.parent.postMessage({
                         ward: "unsupported",
                         borough: "unsupported"
                     }, "*");
