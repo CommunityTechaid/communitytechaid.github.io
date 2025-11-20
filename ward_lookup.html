@@ -350,7 +350,8 @@
     }
 
     #postcodeInput {
-        width: 35vw;
+        width: 100%;
+        max-width: 400px;
         font-size: 16px;
         line-height: 24px;
 
@@ -382,20 +383,95 @@
     #contents {
         margin: auto;
         width: 80%;
-        height:900px;
+        min-height: 100vh;
+        padding-bottom: 40px;
     }
 
     #map {
         margin: auto;
         width: 100%;
-        height:600px;
+        height: 500px;
         padding-top: 2em;
         padding-bottom: 2em;
         margin-top: 20px;
         margin-bottom: 20px;
     }
-    @media (max-width: 500px) {
+    @media (max-width: 768px) {
+        #contents {
+            width: 90%;
+            padding-bottom: 20px;
+        }
 
+        #map {
+            height: 400px;
+            padding-top: 1em;
+            padding-bottom: 1em;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        #postcodeInput {
+            width: 100%;
+            max-width: 100%;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .textarea {
+            margin-top: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px 18px;
+            font-size: 16px;
+            min-height: 48px;
+        }
+
+        #submitBtn {
+            margin-top: 8px;
+        }
+
+        #mdfg {
+            font-size: 18px;
+            line-height: 28px;
+            margin-bottom: 8px;
+        }
+
+        #info {
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        #result {
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 24px;
+        }
+
+        .Logo {
+            max-height: 35px;
+            margin-bottom: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        #contents {
+            width: 95%;
+        }
+
+        #map {
+            height: 350px;
+        }
+
+        #mdfg {
+            font-size: 16px;
+            line-height: 26px;
+        }
     }
 
     #sendToTypeform, #result {
@@ -430,13 +506,14 @@
         border: 1px solid transparent;
         margin: 0px;
         box-shadow: rgba(0, 0, 0, 0.1) 0px 3px 12px 0px;
-        padding: 8px 18px;
+        padding: 12px 18px;
+        min-height: 44px;
         background-color: rgb(0, 37, 144);
         color: rgb(157, 254, 255);
         border-radius: var(--sampler-comp-radius-button);
         box-sizing: inherit;
         -webkit-font-smoothing: antialiased;
-        -webkit-tap-highlight-color: transparent;    
+        -webkit-tap-highlight-color: transparent;
         text-decoration: none;
         font-size: 16px;
     }
