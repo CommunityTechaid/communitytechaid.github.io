@@ -35,11 +35,6 @@
     //For example, the borough name is stored in LAD24NM, but previously that field was called LAD23NM. Ward data is now stored in WD24NM
     const geojsonLink = "https://communitytechaid.github.io/LambethSouthwarkandAdjoiningAreas_Wards_highdef_Dec2024.geojson";
     
-    //Note, we are a charity using this for a client-side maps lookup
-    //Please don't steal this key. 
-    //We set a quota on this, so if you abuse it, this will negatively impact our beneficiaries
-    const google_maps_api_key = 'AIzaSyDz9GwgyHhAlvIyMYCen3aBqr7WE2OZmI8'
-    
     var view_borough = "";
     var view_borough_pos = [0, 0];   
     // todo centre map to boroughs ?
@@ -197,9 +192,9 @@
     }
     
     async function getCoordinates(lookup) {
-        const base_url = 'https://maps.googleapis.com/maps/api/geocode/json';
+        const base_url = 'https://cta-maps-proxy.community-techaid.workers.dev/'; 
         
-        let resp = await fetch(`${base_url}?address=${lookup}&key=${google_maps_api_key}`);
+        let resp = await fetch(`${base_url}?address=${lookup}`);
         let data = await resp.json();
 
         if (resp.status === 200 && data.status == "OK" && data.results.length > 0) {
