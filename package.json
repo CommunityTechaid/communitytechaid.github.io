@@ -1,0 +1,12 @@
+{
+  "name": "communitytechaid-tests",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:live": "cross-env BASE_URL=https://communitytechaid.github.io playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "cross-env": "^7.0.3"
+  }
+}
