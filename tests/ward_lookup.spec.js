@@ -6,6 +6,21 @@ const GEOJSON_TIMEOUT = 30_000;
 // A postcode firmly inside Southwark — used to verify end-to-end lookup
 const TEST_POSTCODE = 'SE5 8QN';
 
+// Intercept the Cloudflare geocoding proxy so postcode tests don't depend on
+// an external network call being reachable from CI.
+async function mockGeocoding(page) {
+  await page.route('**/cta-maps-proxy.community-techaid.workers.dev/**', route =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        status: 'OK',
+        results: [{ geometry: { location: { lat: 51.4736, lng: -0.0869 } } }]
+      })
+    })
+  );
+}
+
 test.describe('Ward lookup page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/ward_lookup.html');
@@ -34,6 +49,7 @@ test.describe('Ward lookup page', () => {
   });
 
   test('postcode lookup resolves to a ward in Lambeth or Southwark', async ({ page }) => {
+    await mockGeocoding(page);
     // Ward polygons must be loaded before the point-in-polygon lookup can work
     await expect(page.locator('.leaflet-interactive').first())
       .toBeVisible({ timeout: GEOJSON_TIMEOUT });
@@ -58,6 +74,7 @@ test.describe('Ward lookup page', () => {
   });
 
   test('OK button navigates when a ward has been selected', async ({ page }) => {
+    await mockGeocoding(page);
     await expect(page.locator('.leaflet-interactive').first())
       .toBeVisible({ timeout: GEOJSON_TIMEOUT });
 
