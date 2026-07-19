@@ -1,0 +1,20 @@
+name = "cta-maps-proxy"
+main = "src/index.js"
+compatibility_date = "2026-04-30"
+account_id = "b54c483820627f3bc0532564ac159369"
+
+# GOOGLE_API_KEY is stored as a secret:
+#   wrangler secret put GOOGLE_API_KEY --name cta-maps-proxy
+# Keep dashboard-set vars/secrets across deploys.
+keep_vars = true
+
+[observability]
+enabled = true
+
+# Per-IP rate limit (must be top-level `ratelimits` — the older unsafe.bindings
+# shape deploys without error but never enforces; verified 2026-07-19).
+# Ward lookups are one geocode per user action, so 30/min per IP is ample.
+[[ratelimits]]
+name = "RATE_LIMITER"
+namespace_id = "1002"
+simple = { limit = 30, period = 60 }
