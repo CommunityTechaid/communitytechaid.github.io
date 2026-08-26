@@ -59,26 +59,31 @@
 
         mymap = L.map('map',{
         }).setView(view_borough_pos, 12);  
-        // OpenStreetMap's own tiles, deliberately. This used to be CARTO's
-        // basemaps.cartocdn.com "voyager_labels_under" layer, which was free and
-        // keyless when it went in. CARTO has since started requiring an API key
-        // and now answers unauthenticated tile requests with the tile image
-        // itself stamped "API KEY REQUIRED" - so the map still loaded, still
-        // panned, and still looked like a map, but had that text diagonally
-        // across every tile. Nothing in our code errored, which is why it
-        // reached production unnoticed.
+        // CARTO's "voyager_labels_under" basemap - the quiet, low-contrast layer
+        // this map has always used, and the one it is designed around: it draws
+        // place labels UNDERNEATH overlays, so the ward polygons sit on top
+        // without burying street names.
         //
-        // OSM standard needs no key and no account. It has no {r} retina variant
-        // and its {s} subdomains are deprecated, so both are gone from the URL.
-        // The old layer drew labels *under* overlays; OSM bakes them in. That is
-        // fine here because the ward polygons are drawn at fillOpacity 0.1-0.2,
-        // which does not hide the labels underneath them.
+        // The key is required. CARTO used to serve these tiles anonymously and
+        // changed that; their unauthenticated response is not an error but a
+        // normal 200 PNG of the correct tile with "API KEY REQUIRED" stamped
+        // diagonally across it. So the map still loaded, still panned, and still
+        // looked like a map - nothing in our code errored, which is exactly why
+        // that reached production unnoticed and had to be reported by a user.
         //
-        // Keep the attribution: OSM's tile usage policy requires it, and this
-        // map is well inside their acceptable-use volume.
-        var osm = new L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
-                        maxZoom: 19,
-                        attribution: '&copy; <a tabindex="-1" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        // Note the parameter name. CARTO accepts ?key=; ?api_key= and ?apikey=
+        // are silently IGNORED and you get the watermarked tile back with a 200,
+        // which looks like success from every angle except the screen. Verified
+        // by fetching a tile with each spelling and comparing the bytes.
+        //
+        // The key is a client-side basemap key: it ships in this page's source
+        // and is public by design, the same way a Maps JS key is. It is on
+        // CARTO's free tier - 5 million tile requests a calendar month, which
+        // this borough-sized map will never approach. It is not a secret, but it
+        // is also not ours to lend: CARTO's terms say keys must not be shared or
+        // reused across unrelated projects, so it stays on this page only.
+        var osm = new L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png?key=cb1_26mj_1_6e14d38d3468a87962a8770c',{
+                        attribution: '&copy; <a tabindex="-1" href="http://osm.org/copyright">OpenStreetMap</a> contributors, &copy; <a tabindex="-1" href="https://carto.com/attributions">CARTO</a>',
                         }).addTo(mymap);
         // i dont know if thats allowed but i added tabindex="-1" to the hyperlink here because its annoying.
         geojsonUpdate();
