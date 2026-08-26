@@ -59,9 +59,26 @@
 
         mymap = L.map('map',{
         }).setView(view_borough_pos, 12);  
-        var osm = new L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',{
+        // OpenStreetMap's own tiles, deliberately. This used to be CARTO's
+        // basemaps.cartocdn.com "voyager_labels_under" layer, which was free and
+        // keyless when it went in. CARTO has since started requiring an API key
+        // and now answers unauthenticated tile requests with the tile image
+        // itself stamped "API KEY REQUIRED" - so the map still loaded, still
+        // panned, and still looked like a map, but had that text diagonally
+        // across every tile. Nothing in our code errored, which is why it
+        // reached production unnoticed.
+        //
+        // OSM standard needs no key and no account. It has no {r} retina variant
+        // and its {s} subdomains are deprecated, so both are gone from the URL.
+        // The old layer drew labels *under* overlays; OSM bakes them in. That is
+        // fine here because the ward polygons are drawn at fillOpacity 0.1-0.2,
+        // which does not hide the labels underneath them.
+        //
+        // Keep the attribution: OSM's tile usage policy requires it, and this
+        // map is well inside their acceptable-use volume.
+        var osm = new L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+                        maxZoom: 19,
                         attribution: '&copy; <a tabindex="-1" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-                        
                         }).addTo(mymap);
         // i dont know if thats allowed but i added tabindex="-1" to the hyperlink here because its annoying.
         geojsonUpdate();
