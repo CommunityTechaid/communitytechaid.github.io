@@ -42,6 +42,51 @@ test.describe('Ward lookup page', () => {
     await expect(page.locator('.leaflet-container')).toBeVisible();
   });
 
+  // Regression guard. The basemap used to come from CARTO's
+  // basemaps.cartocdn.com, which was keyless when it went in. CARTO later began
+  // requiring an API key and started answering unauthenticated requests with a
+  // perfectly valid PNG that has "API KEY REQUIRED" stamped diagonally across
+  // it. Every tile still returned 200, the map still rendered and still panned,
+  // and no console error fired — so the only symptom was the words sitting
+  // across the map, and it reached production unnoticed until a user reported
+  // it.
+  //
+  // Asserting "a tile loaded" would therefore not have caught it. What
+  // distinguishes the good state from the bad one is WHO is being asked for
+  // tiles, so that is what this pins: tiles must come from a provider that
+  // needs no key. If someone repoints the basemap at a keyed provider, this
+  // fails immediately rather than after the vendor changes their terms.
+  test('basemap tiles come from a keyless provider and actually load', async ({ page }) => {
+    const KEYED_TILE_HOSTS = [
+      'basemaps.cartocdn.com',
+      'tiles.stadiamaps.com',
+      'tile.thunderforest.com',
+      'api.mapbox.com',
+      'maps.googleapis.com',
+    ];
+
+    const tileRequests = [];
+    page.on('response', response => {
+      const url = response.url();
+      if (/\/\d+\/\d+\/\d+(@\dx)?\.png/.test(url)) {
+        tileRequests.push({ url, status: response.status() });
+      }
+    });
+
+    await page.reload();
+    await expect(page.locator('.leaflet-tile-loaded').first()).toBeVisible({ timeout: 15_000 });
+
+    expect(tileRequests.length, 'the map requested no tiles at all').toBeGreaterThan(0);
+
+    const keyed = tileRequests.filter(t => KEYED_TILE_HOSTS.some(h => t.url.includes(h)));
+    expect(keyed.map(t => t.url), 'basemap is pointed at a provider that requires an API key')
+      .toEqual([]);
+
+    const failed = tileRequests.filter(t => t.status !== 200);
+    expect(failed.map(t => `${t.status} ${t.url}`), 'some basemap tiles failed to load')
+      .toEqual([]);
+  });
+
   test('ward boundaries load from GeoJSON', async ({ page }) => {
     // At least one SVG path (ward polygon) must appear within the timeout
     await expect(page.locator('.leaflet-interactive').first())
