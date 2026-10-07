@@ -4,8 +4,7 @@ const isLive = !!process.env.BASE_URL;
 
 export default defineConfig({
   testDir: './tests',
-  // GeoJSON is 3.4 MB — give each test enough time for it to load
-  timeout: 45_000,
+  timeout: 30_000,
   use: {
     baseURL: process.env.BASE_URL ?? 'http://localhost:3000',
     headless: true,
